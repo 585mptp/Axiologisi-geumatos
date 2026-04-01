@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Αξιολόγηση Γεύματος</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Πώς αξιολογείτε το γεύμα;</h1>
+
+    <div class="buttons">
+        <button class="excellent" onclick="saveResponse('Άριστο')">
+            <div class="emoji-container"><img src="images/aristo.png" alt="emoji άριστο"></div>
+            <span class="label">Άριστο</span>
+        </button>
+
+        <button class="good" onclick="saveResponse('Καλό')">
+            <div class="emoji-container"><img src="images/kalo.png" alt="emoji καλό"></div>
+            <span class="label">Καλό</span>
+        </button>
+
+        <button class="average" onclick="saveResponse('Μέτριο')">
+            <div class="emoji-container"><img src="images/metrio.png" alt="emoji μέτριο"></div>
+            <span class="label">Μέτριο</span>
+        </button>
+
+        <button class="bad" onclick="saveResponse('Κακό')">
+            <div class="emoji-container"><img src="images/kako.png" alt="emoji κακό"></div>
+            <span class="label">Κακό</span>
+        </button>
+
+        <button class="terrible" onclick="saveResponse('Πολύ κακό')">
+            <div class="emoji-container"><img src="images/polykako.png" alt="emoji πολύ κακό"></div>
+            <span class="label">Πολύ κακό</span>
+        </button>
+    </div>
+
+    <div class="thanks" id="thanksMessage">
+        Ευχαριστούμε!
+    </div>  
+
+    <div>
+        
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
