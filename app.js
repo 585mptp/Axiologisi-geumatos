@@ -99,7 +99,7 @@ function setupAutoSend() {
     // Retry every minute after 22:30
     setInterval(() => {
         const now = new Date();
-        if (now.getHours() === 22 && now.getMinutes() >= 30) {
+        if (now.getHours() === 23 && now.getMinutes() >= 30) {
             sendDailyData();
         }
     }, 60000);
