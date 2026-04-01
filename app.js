@@ -71,6 +71,9 @@ function saveResponse(choice) {
     if (data[period][choice] !== undefined) {
         data[period][choice]++;
         localStorage.setItem("mealData", JSON.stringify(data));
+
+        // Show thank you message
+        const thanks = document.getElementById("thanksMessage");
         // Εμφάνιση
         thanks.style.display = "block";
         thanks.classList.remove("fade-out");
