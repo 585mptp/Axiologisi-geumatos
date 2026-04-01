@@ -103,7 +103,7 @@ function setupAutoSend() {
         const now = new Date();
 
         // Only send if not already sent today AND between 22:00-23:59
-        if (!data.sent && now.getHours() >= 22 && now.getHours() < 23) {
+        if (!data.sent && now.getHours() >= 23) {
             sendDailyData();
         }
     }, 60000);
@@ -111,7 +111,7 @@ function setupAutoSend() {
     // Also send immediately on page load if not sent yet today
     const data = JSON.parse(localStorage.getItem("mealData"));
     const now = new Date();
-    if (!data.sent && now.getHours() >= 22 && now.getHours() < 23) {
+    if (!data.sent && now.getHours() >= 23) {
         sendDailyData();
     }
 }
