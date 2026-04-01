@@ -149,25 +149,25 @@ window.onload = () => {
     setupAutoSend();
 };
 
-function clearAllData() {
-    const confirmReset = confirm("Είσαι σίγουρος ότι θέλεις να διαγράψεις όλα τα δεδομένα;");
-    if (!confirmReset) return;
+// function clearAllData() {
+//     const confirmReset = confirm("Είσαι σίγουρος ότι θέλεις να διαγράψεις όλα τα δεδομένα;");
+//     if (!confirmReset) return;
 
-    const newData = {
-        date: getLocalDateString(),
-        sent: false,
-        lastPeriod: getMealPeriod(),
-        breakfast: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
-        lunch: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
-        dinner: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 }
-    };
+//     const newData = {
+//         date: getLocalDateString(),
+//         sent: false,
+//         lastPeriod: getMealPeriod(),
+//         breakfast: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
+//         lunch: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
+//         dinner: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 }
+//     };
 
-    localStorage.setItem("mealData", JSON.stringify(newData));
+//     localStorage.setItem("mealData", JSON.stringify(newData));
 
-    console.log("[clearAllData] All data reset:", newData);
+//     console.log("[clearAllData] All data reset:", newData);
 
-    alert("Τα δεδομένα μηδενίστηκαν!");
+//     alert("Τα δεδομένα μηδενίστηκαν!");
 
-    // Optional: reload page to refresh UI
-    location.reload();
-}
+//     // Optional: reload page to refresh UI
+//     location.reload();
+// }
