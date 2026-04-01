@@ -1,6 +1,10 @@
 // ===========================
 // INITIALIZATION
 // ===========================
+
+//checker to see if data was sent
+let hasBeenSent = false;
+
 const initialData = {
     date: new Date().toISOString().split("T")[0],
     sent: false,
@@ -14,8 +18,17 @@ function initializeStorage() {
     const stored = JSON.parse(localStorage.getItem("mealData"));
     const today = new Date().toISOString().split("T")[0];
 
+    // Reset counts only if it’s a new day
     if (!stored || stored.date !== today) {
-        localStorage.setItem("mealData", JSON.stringify(initialData));
+        const newData = {
+            date: today,
+            sent: false, // new day, not sent yet
+            lastPeriod: getMealPeriod(),
+            breakfast: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
+            lunch: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
+            dinner: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 }
+        };
+        localStorage.setItem("mealData", JSON.stringify(newData));
     }
 }
 
@@ -79,15 +92,7 @@ async function sendDailyData() {
             data.sent = true;
             localStorage.setItem("mealData", JSON.stringify(data));
             console.log("Daily data sent successfully!");
-            // Reset all counts for next day
-            const newData = {
-                date: new Date().toISOString().split("T")[0],
-                sent: false,
-                breakfast: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
-                lunch: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
-                dinner: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 }
-            };
-            localStorage.setItem("mealData", JSON.stringify(newData));
+            // ✅ DO NOT reset counts here. Reset will happen tomorrow in initializeStorage()
         }
     } catch (err) {
         console.log("Send failed, will retry later:", err);
@@ -103,17 +108,10 @@ function setupAutoSend() {
         const now = new Date();
 
         // Only send if not already sent today AND between 22:00-23:59
-        if (!data.sent && now.getHours() >= 23) {
+        if (!data.sent && now.getHours() >= 23 && now.getMinutes() >= 40) {
             sendDailyData();
         }
     }, 60000);
-
-    // Also send immediately on page load if not sent yet today
-    const data = JSON.parse(localStorage.getItem("mealData"));
-    const now = new Date();
-    if (!data.sent && now.getHours() >= 23) {
-        sendDailyData();
-    }
 }
 
 // ===========================
