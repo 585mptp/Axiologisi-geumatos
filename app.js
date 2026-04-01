@@ -107,6 +107,7 @@ function setupAutoSend() {
         const data = JSON.parse(localStorage.getItem("mealData")); // always fresh
         const now = new Date();
 
+        console.log(data.sent);
         // Only send if not already sent today AND between 22:00-23:59
         if (!data.sent && now.getHours() >= 23) {
             sendDailyData();
