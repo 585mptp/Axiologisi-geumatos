@@ -25,9 +25,9 @@ function initializeStorage() {
 function getMealPeriod() {
     const hour = new Date().getHours();
     console.log("Current hour:", hour);
-    if (hour < 11) return "breakfast";
+    if (hour < 11) return "dinner";
     if (hour < 17) return "lunch";
-    return "dinner";
+    return "breakfast";
 }
 
 function showThanksMessage() {
@@ -98,10 +98,10 @@ async function sendDailyData() {
 // AUTO SEND TRIGGERS
 // ===========================
 function setupAutoSend() {
-    // Retry every minute after 22:30
+    // Retry every minute after 22:00
     setInterval(() => {
         const now = new Date();
-        if (now.getHours() === 22) {
+        if (now.getHours() === 23) {
             sendDailyData();
         }
     }, 60000);
@@ -109,7 +109,7 @@ function setupAutoSend() {
     // Also send on page load if data not sent
     const data = JSON.parse(localStorage.getItem("mealData"));
     const now = new Date();
-    if (now.getHours() >= 22 && !data.sent) {
+    if (now.getHours() >= 23 && !data.sent) {
         sendDailyData();
     }
 }
