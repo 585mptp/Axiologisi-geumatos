@@ -108,7 +108,7 @@ function setupAutoSend() {
         const now = new Date();
 
         // Only send if not already sent today AND between 22:00-23:59
-        if (!data.sent && now.getHours() >= 23 && now.getMinutes() >= 40) {
+        if (!data.sent && now.getHours() >= 23) {
             sendDailyData();
         }
     }, 60000);
