@@ -53,7 +53,7 @@ initializeStorage();
 //test data for mongo
 async function sendTestData() {
     try {
-        const res = await fetch("/api/test", {
+        const res = await fetch("/api/test/test.js", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
