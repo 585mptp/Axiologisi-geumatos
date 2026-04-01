@@ -1,8 +1,6 @@
 // ===========================
-// INITIALIZATION
+// LOCAL TIME HELPERS
 // ===========================
-
-// Initial local date string function
 function getLocalDateString() {
     const now = new Date();
     const year = now.getFullYear();
@@ -11,53 +9,61 @@ function getLocalDateString() {
     return `${year}-${month}-${day}`;
 }
 
-// Determine meal period based on local hour
 function getMealPeriod() {
     const hour = new Date().getHours();
+    console.log("[getMealPeriod] Current hour:", hour);
     if (hour < 11) return "breakfast";
     if (hour < 17) return "lunch";
     return "dinner";
 }
 
-// Initialize storage or reset for a new day
+// ===========================
+// INITIALIZATION
+// ===========================
 function initializeStorage() {
     const today = getLocalDateString();
-    const stored = JSON.parse(localStorage.getItem("mealData"));
+    let stored = JSON.parse(localStorage.getItem("mealData"));
+    console.log("[initializeStorage] Stored data before init:", stored);
 
     if (!stored || stored.date !== today) {
         const newData = {
             date: today,
-            sent: false, // not sent yet today
+            sent: false,
             lastPeriod: getMealPeriod(),
             breakfast: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
             lunch: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
             dinner: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 }
         };
         localStorage.setItem("mealData", JSON.stringify(newData));
-        console.log("Storage initialized/reset for new day:", today);
+        console.log("[initializeStorage] Storage initialized for new day:", newData);
+    } else {
+        console.log("[initializeStorage] Storage already up-to-date for today:", stored);
     }
 }
 
 // ===========================
-// UI HELPERS
+// RESET MEAL PERIOD IF CHANGED
 // ===========================
-function showThanksMessage() {
-    const thanks = document.getElementById("thanksMessage");
-    if (!thanks) return;
+function resetMealIfChanged() {
+    const data = JSON.parse(localStorage.getItem("mealData"));
+    const currentPeriod = getMealPeriod();
+    console.log("[resetMealIfChanged] Current period:", currentPeriod, "Last period:", data.lastPeriod);
 
-    thanks.style.display = "block";
-    thanks.classList.remove("fade-out");
-
-    setTimeout(() => {
-        thanks.classList.add("fade-out");
-        setTimeout(() => (thanks.style.display = "none"), 500);
-    }, 2000);
+    if (data.lastPeriod !== currentPeriod) {
+        data[currentPeriod] = { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 };
+        data.lastPeriod = currentPeriod;
+        localStorage.setItem("mealData", JSON.stringify(data));
+        console.log("[resetMealIfChanged] Counts reset for new period:", currentPeriod, data);
+    } else {
+        console.log("[resetMealIfChanged] No period change, counts unchanged.");
+    }
 }
 
 // ===========================
 // SAVE RESPONSE
 // ===========================
 function saveResponse(choice) {
+    console.log("[saveResponse] Button clicked, choice:", choice);
     resetMealIfChanged();
     const data = JSON.parse(localStorage.getItem("mealData"));
     const period = getMealPeriod();
@@ -65,24 +71,9 @@ function saveResponse(choice) {
     if (data[period][choice] !== undefined) {
         data[period][choice]++;
         localStorage.setItem("mealData", JSON.stringify(data));
-        console.log("Vote saved:", choice, "for", period);
-    }
-
-    showThanksMessage();
-}
-
-// ===========================
-// RESET MEAL IF PERIOD CHANGED
-// ===========================
-function resetMealIfChanged() {
-    const data = JSON.parse(localStorage.getItem("mealData"));
-    const currentPeriod = getMealPeriod();
-
-    if (data.lastPeriod !== currentPeriod) {
-        data[currentPeriod] = { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 };
-        data.lastPeriod = currentPeriod;
-        localStorage.setItem("mealData", JSON.stringify(data));
-        console.log("Meal period changed! Counts reset for", currentPeriod);
+        console.log("[saveResponse] Vote saved:", choice, "for period:", period, "Updated data:", data);
+    } else {
+        console.warn("[saveResponse] Invalid choice:", choice);
     }
 }
 
@@ -91,8 +82,12 @@ function resetMealIfChanged() {
 // ===========================
 async function sendDailyData() {
     const data = JSON.parse(localStorage.getItem("mealData"));
+    console.log("[sendDailyData] Preparing to send data:", data);
 
-    if (!data || data.sent) return;
+    if (!data || data.sent) {
+        console.log("[sendDailyData] Data already sent or empty, skipping.");
+        return;
+    }
 
     try {
         const res = await fetch("/api/save-day", {
@@ -102,34 +97,38 @@ async function sendDailyData() {
         });
 
         if (res.ok) {
-            data.sent = true; // mark as sent for today
+            data.sent = true;
             localStorage.setItem("mealData", JSON.stringify(data));
-            console.log("Daily data sent successfully!");
+            console.log("[sendDailyData] Daily data sent successfully!");
+        } else {
+            console.warn("[sendDailyData] Failed to send, server returned status:", res.status);
         }
     } catch (err) {
-        console.log("Send failed, will retry later:", err);
+        console.error("[sendDailyData] Send failed, will retry later:", err);
     }
 }
 
 // ===========================
-// AUTO SEND TRIGGERS
+// AUTO SEND
 // ===========================
 function setupAutoSend() {
     setInterval(() => {
         const data = JSON.parse(localStorage.getItem("mealData"));
         const now = new Date();
+        console.log("[setupAutoSend] Checking if should send data. Hour:", now.getHours(), "Sent:", data.sent);
 
-        // Send once per day, only between 22:00 and 23:59 local time
         if (!data.sent && now.getHours() >= 22) {
+            console.log("[setupAutoSend] Sending daily data...");
             sendDailyData();
         }
-    }, 60000); // check every minute
+    }, 60000);
 }
 
 // ===========================
 // INITIALIZE
 // ===========================
 window.onload = () => {
+    console.log("[window.onload] Initializing storage and auto-send...");
     initializeStorage();
     setupAutoSend();
 };
