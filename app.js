@@ -27,7 +27,7 @@ function getMealPeriod() {
     console.log("Current hour:", hour);
     if (hour < 11) return "breakfast";
     if (hour < 17) return "dinner";
-    return "launch";
+    return "lunch";
 }
 
 function showThanksMessage() {
