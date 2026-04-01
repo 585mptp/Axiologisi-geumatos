@@ -29,6 +29,7 @@ function loadResults() {
                 </div>
             `;
         }
+        console.log(`Loaded results for ${period}:`, meal);
     });
 
     container.innerHTML = html;
