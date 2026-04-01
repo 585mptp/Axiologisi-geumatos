@@ -98,18 +98,20 @@ async function sendDailyData() {
 // AUTO SEND TRIGGERS
 // ===========================
 function setupAutoSend() {
-    // Retry every minute after 22:00
     setInterval(() => {
+        const data = JSON.parse(localStorage.getItem("mealData")); // always fresh
         const now = new Date();
-        if (now.getHours() === 23) {
+
+        // Only send if not already sent today AND between 22:00-23:59
+        if (!data.sent && now.getHours() >= 22 && now.getHours() < 23) {
             sendDailyData();
         }
     }, 60000);
 
-    // Also send on page load if data not sent
+    // Also send immediately on page load if not sent yet today
     const data = JSON.parse(localStorage.getItem("mealData"));
     const now = new Date();
-    if (now.getHours() >= 23 && !data.sent) {
+    if (!data.sent && now.getHours() >= 22 && now.getHours() < 23) {
         sendDailyData();
     }
 }
