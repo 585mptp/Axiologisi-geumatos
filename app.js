@@ -25,7 +25,7 @@ function saveResponse(choice) {
     localStorage.setItem("mealRatings", JSON.stringify(data));
 
     // Show thank you message
-     const thanks = document.getElementById("thanksMessage");
+    const thanks = document.getElementById("thanksMessage");
 
     // Εμφάνιση
     thanks.style.display = "block";
@@ -49,3 +49,27 @@ function getResults() {
 
 // Initialize on page load
 initializeStorage();
+
+//test data for mongo
+async function sendTestData() {
+    try {
+        const res = await fetch("/api/test", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: "Test from frontend",
+                date: new Date().toISOString()
+            })
+        });
+
+        const data = await res.json();
+        console.log("Response:", data);
+
+        alert("Inserted in DB!");
+    } catch (err) {
+        console.error(err);
+        alert("Error inserting data");
+    }
+}
