@@ -71,6 +71,19 @@ function saveResponse(choice) {
     if (data[period][choice] !== undefined) {
         data[period][choice]++;
         localStorage.setItem("mealData", JSON.stringify(data));
+        // Εμφάνιση
+        thanks.style.display = "block";
+        thanks.classList.remove("fade-out");
+
+        // Εξαφάνιση μετά από 2s
+        setTimeout(() => {
+            thanks.classList.add("fade-out");
+
+            // τελείως hide μετά το animation
+            setTimeout(() => {
+                thanks.style.display = "none";
+            }, 500);
+        }, 2000);
         console.log("[saveResponse] Vote saved:", choice, "for period:", period, "Updated data:", data);
     } else {
         console.warn("[saveResponse] Invalid choice:", choice);
