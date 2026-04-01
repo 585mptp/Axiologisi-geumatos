@@ -2,65 +2,63 @@
 // INITIALIZATION
 // ===========================
 
-//checker to see if data was sent
-let hasBeenSent = false;
+// Initial local date string function
+function getLocalDateString() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
 
-const initialData = {
-    date: new Date().toISOString().split("T")[0],
-    sent: false,
-    lastPeriod: getMealPeriod(), // track meal period
-    breakfast: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
-    lunch: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
-    dinner: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 }
-};
+// Determine meal period based on local hour
+function getMealPeriod() {
+    const hour = new Date().getHours();
+    if (hour < 11) return "breakfast";
+    if (hour < 17) return "lunch";
+    return "dinner";
+}
 
+// Initialize storage or reset for a new day
 function initializeStorage() {
+    const today = getLocalDateString();
     const stored = JSON.parse(localStorage.getItem("mealData"));
-    const today = new Date().toISOString().split("T")[0];
 
-    // Reset counts only if it’s a new day
     if (!stored || stored.date !== today) {
         const newData = {
             date: today,
-            sent: false, // new day, not sent yet
+            sent: false, // not sent yet today
             lastPeriod: getMealPeriod(),
             breakfast: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
             lunch: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
             dinner: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 }
         };
         localStorage.setItem("mealData", JSON.stringify(newData));
+        console.log("Storage initialized/reset for new day:", today);
     }
 }
 
 // ===========================
-// HELPER FUNCTIONS
+// UI HELPERS
 // ===========================
-function getMealPeriod() {
-    const hour = new Date().getHours();
-    console.log("Current hour:", hour);
-    if (hour < 11) return "breakfast";
-    if (hour < 17) return "lunch";
-    return "dinner";
-}
-
 function showThanksMessage() {
     const thanks = document.getElementById("thanksMessage");
+    if (!thanks) return;
+
     thanks.style.display = "block";
     thanks.classList.remove("fade-out");
 
     setTimeout(() => {
         thanks.classList.add("fade-out");
-        setTimeout(() => {
-            thanks.style.display = "none";
-        }, 500);
+        setTimeout(() => (thanks.style.display = "none"), 500);
     }, 2000);
 }
 
 // ===========================
-// SAVE RESPONSE (BUTTON CLICK)
+// SAVE RESPONSE
 // ===========================
 function saveResponse(choice) {
-    resetMealIfChanged(); // <- new
+    resetMealIfChanged();
     const data = JSON.parse(localStorage.getItem("mealData"));
     const period = getMealPeriod();
 
@@ -71,6 +69,21 @@ function saveResponse(choice) {
     }
 
     showThanksMessage();
+}
+
+// ===========================
+// RESET MEAL IF PERIOD CHANGED
+// ===========================
+function resetMealIfChanged() {
+    const data = JSON.parse(localStorage.getItem("mealData"));
+    const currentPeriod = getMealPeriod();
+
+    if (data.lastPeriod !== currentPeriod) {
+        data[currentPeriod] = { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 };
+        data.lastPeriod = currentPeriod;
+        localStorage.setItem("mealData", JSON.stringify(data));
+        console.log("Meal period changed! Counts reset for", currentPeriod);
+    }
 }
 
 // ===========================
@@ -89,10 +102,9 @@ async function sendDailyData() {
         });
 
         if (res.ok) {
-            data.sent = true;
+            data.sent = true; // mark as sent for today
             localStorage.setItem("mealData", JSON.stringify(data));
             console.log("Daily data sent successfully!");
-            // ✅ DO NOT reset counts here. Reset will happen tomorrow in initializeStorage()
         }
     } catch (err) {
         console.log("Send failed, will retry later:", err);
@@ -104,21 +116,14 @@ async function sendDailyData() {
 // ===========================
 function setupAutoSend() {
     setInterval(() => {
-        const data = JSON.parse(localStorage.getItem("mealData")); // always fresh
+        const data = JSON.parse(localStorage.getItem("mealData"));
         const now = new Date();
 
-        // Only send if not already sent today AND between 22:00-23:59
-        if (!data.sent && now.getHours() >= 23) {
+        // Send once per day, only between 22:00 and 23:59 local time
+        if (!data.sent && now.getHours() >= 22) {
             sendDailyData();
         }
-    }, 60000);
-
-    // Also send immediately on page load if not sent yet today
-    const data = JSON.parse(localStorage.getItem("mealData"));
-    const now = new Date();
-    if (!data.sent && now.getHours() >= 23) {
-        sendDailyData();
-    }
+    }, 60000); // check every minute
 }
 
 // ===========================
@@ -128,22 +133,3 @@ window.onload = () => {
     initializeStorage();
     setupAutoSend();
 };
-
-function resetMealIfChanged() {
-    const data = JSON.parse(localStorage.getItem("mealData"));
-    const currentPeriod = getMealPeriod();
-
-    if (data.lastPeriod !== currentPeriod) {
-        // Reset counts for the new period
-        data[currentPeriod] = {
-            "Άριστο": 0,
-            "Καλό": 0,
-            "Μέτριο": 0,
-            "Κακό": 0,
-            "Πολύ κακό": 0
-        };
-        data.lastPeriod = currentPeriod; // update lastPeriod
-        localStorage.setItem("mealData", JSON.stringify(data));
-        console.log("Meal period changed! Counts reset for", currentPeriod);
-    }
-}
