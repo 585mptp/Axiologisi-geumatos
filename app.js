@@ -4,6 +4,7 @@
 const initialData = {
     date: new Date().toISOString().split("T")[0],
     sent: false,
+    lastPeriod: getMealPeriod(), // track meal period
     breakfast: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
     lunch: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 },
     dinner: { "Άριστο": 0, "Καλό": 0, "Μέτριο": 0, "Κακό": 0, "Πολύ κακό": 0 }
@@ -14,7 +15,7 @@ function initializeStorage() {
     const today = new Date().toISOString().split("T")[0];
 
     if (!stored || stored.date !== today) {
-        localStorage.setItem("mealData", JSON.stringify({ ...initialData, date: today }));
+        localStorage.setItem("mealData", JSON.stringify(initialData));
     }
 }
 
@@ -52,9 +53,10 @@ function saveResponse(choice) {
 
     if (data[period][choice] !== undefined) {
         data[period][choice]++;
+        localStorage.setItem("mealData", JSON.stringify(data));
+        console.log("Vote saved:", choice, "for", period);
     }
 
-    localStorage.setItem("mealData", JSON.stringify(data));
     showThanksMessage();
 }
 
@@ -124,9 +126,6 @@ function resetMealIfChanged() {
     const data = JSON.parse(localStorage.getItem("mealData"));
     const currentPeriod = getMealPeriod();
 
-    // Track last period
-    if (!data.lastPeriod) data.lastPeriod = currentPeriod;
-
     if (data.lastPeriod !== currentPeriod) {
         // Reset counts for the new period
         data[currentPeriod] = {
@@ -138,5 +137,6 @@ function resetMealIfChanged() {
         };
         data.lastPeriod = currentPeriod; // update lastPeriod
         localStorage.setItem("mealData", JSON.stringify(data));
+        console.log("Meal period changed! Counts reset for", currentPeriod);
     }
 }
