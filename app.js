@@ -107,7 +107,7 @@ function setupAutoSend() {
     // Also send on page load if data not sent
     const data = JSON.parse(localStorage.getItem("mealData"));
     const now = new Date();
-    if (now.getHours() >= 22 && !data.sent) {
+    if (now.getHours() >= 23 && !data.sent) {
         sendDailyData();
     }
 }

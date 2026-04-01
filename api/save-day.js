@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
   try {
     const client = await clientPromise;
-    const db = client.db("restaurant"); // DB name
+    const db = client.db("meal-assessment"); // DB name
 
     // Update or create today's document
     await db.collection("daily").updateOne(
