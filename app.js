@@ -25,9 +25,9 @@ function initializeStorage() {
 function getMealPeriod() {
     const hour = new Date().getHours();
     console.log("Current hour:", hour);
-    if (hour < 11) return "dinner";
-    if (hour < 17) return "lunch";
-    return "breakfast";
+    if (hour < 11) return "breakfast";
+    if (hour < 17) return "dinner";
+    return "launch";
 }
 
 function showThanksMessage() {
